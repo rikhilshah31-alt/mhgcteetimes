@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tee Times</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--gd:#1a3a1a;--gm:#2d5a27;--gl:#4a8c3f;--gp:#e8f4e3;--gmist:#f2f8f0;--gold:#c9a84c;--goldl:#f5e9c8;--cream:#faf8f3;--ink:#1a1a18;--inkl:#4a4a44;--inkm:#8a8a82;--bd:rgba(26,58,26,0.13);--r:12px;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--ink);min-height:100vh;}
+.hdr{background:var(--gd);padding:1.5rem 1rem 1rem;text-align:center;position:relative;overflow:hidden;}
+.hdr::before{content:'';position:absolute;top:-40px;right:-40px;width:160px;height:160px;border-radius:50%;background:rgba(201,168,76,.07);}
+.hdr::after{content:'';position:absolute;bottom:-30px;left:-20px;width:110px;height:110px;border-radius:50%;background:rgba(201,168,76,.05);}
+.hdr-icon{font-size:24px;margin-bottom:6px;}
+.hdr h1{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;color:#fff;margin-bottom:3px;}
+.hdr p{font-size:12px;color:rgba(255,255,255,.55);font-weight:300;}
+.tab-row{display:flex;background:rgba(255,255,255,.1);border-radius:8px;padding:3px;margin:12px auto 0;width:fit-content;}
+.tab-btn{padding:6px 20px;border:none;border-radius:6px;background:transparent;color:rgba(255,255,255,.65);font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;}
+.tab-btn.on{background:#fff;color:var(--gd);font-weight:500;}
+.wrap{max-width:540px;margin:0 auto;padding:1.25rem 1rem 5rem;}
+.sec{margin-bottom:1.4rem;}
+.lbl{font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--inkm);margin-bottom:8px;}
+input[type=text],input[type=date],select{width:100%;padding:11px 13px;border:1.5px solid var(--bd);border-radius:var(--r);background:#fff;font-family:'DM Sans',sans-serif;font-size:15px;color:var(--ink);outline:none;transition:border-color .2s;}
+input[type=text]:focus,input[type=date]:focus,select:focus{border-color:var(--gl);}
+.hour-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}
+.hour-chip{border:1.5px solid var(--bd);border-radius:8px;padding:10px 4px;background:#fff;cursor:pointer;text-align:center;font-size:13px;color:var(--inkm);transition:all .15s;user-select:none;position:relative;}
+.hour-chip:hover{border-color:var(--gl);background:var(--gmist);color:var(--gd);}
+.hour-chip.on{border-color:var(--gm);background:var(--gp);color:var(--gd);font-weight:500;}
+.hour-chip.on::after{content:'✓';position:absolute;top:2px;right:4px;font-size:9px;color:var(--gm);}
+.flex-row{display:flex;gap:6px;}
+.flex-btn{flex:1;padding:9px 6px;border:1.5px solid var(--bd);border-radius:var(--r);background:#fff;font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;color:var(--inkm);transition:all .2s;text-align:center;}
+.flex-btn.on{border-color:var(--gm);background:var(--gp);color:var(--gd);font-weight:500;}
+.btn-main{width:100%;padding:14px;background:var(--gd);color:#fff;border:none;border-radius:var(--r);font-family:'Playfair Display',serif;font-size:16px;cursor:pointer;letter-spacing:.02em;transition:background .2s;margin-top:4px;}
+.btn-main:hover{background:var(--gm);}
+.btn-main:disabled{opacity:.45;cursor:not-allowed;}
+.btn-sec{width:100%;padding:11px;background:transparent;color:var(--gd);border:1.5px solid var(--gm);border-radius:var(--r);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:all .2s;margin-top:8px;}
+.btn-sec:hover{background:var(--gp);}
+.btn-sm{padding:7px 13px;border:1px solid var(--bd);border-radius:8px;background:#fff;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;color:var(--inkl);transition:all .2s;white-space:nowrap;}
+.btn-sm:hover{background:var(--gp);border-color:var(--gm);color:var(--gd);}
+.btn-sm.danger{color:#c83c3c;border-color:rgba(200,60,60,.2);}
+.btn-sm.danger:hover{background:#fff5f5;}
+.btn-sm.gold{background:var(--gold);color:var(--gd);border-color:var(--gold);}
+.success-card{background:var(--gp);border:1.5px solid var(--gl);border-radius:var(--r);padding:1.5rem;text-align:center;margin-bottom:1rem;}
+.success-card .big{font-size:30px;margin-bottom:6px;}
+.success-card h3{font-family:'Playfair Display',serif;font-size:19px;color:var(--gd);margin-bottom:5px;}
+.success-card p{font-size:13px;color:var(--inkl);}
+.stats-bar{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1rem;}
+.stat{background:#fff;border:1px solid var(--bd);border-radius:var(--r);padding:10px;text-align:center;}
+.stat-n{font-family:'Playfair Display',serif;font-size:22px;color:var(--gd);}
+.stat-l{font-size:11px;color:var(--inkm);margin-top:2px;}
+.admin-box{background:var(--goldl);border:1px solid rgba(201,168,76,.3);border-radius:var(--r);padding:.9rem;margin-bottom:1rem;}
+.admin-box h4{font-size:12px;font-weight:500;color:#7a5e1a;margin-bottom:8px;}
+.share-box{background:#fff;border:1px solid var(--bd);border-radius:8px;padding:9px 11px;font-family:monospace;font-size:11px;color:var(--inkm);word-break:break-all;margin-bottom:8px;line-height:1.5;}
+.btn-row{display:flex;flex-wrap:wrap;gap:6px;}
+.date-tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:1rem;scrollbar-width:none;}
+.date-tabs::-webkit-scrollbar{display:none;}
+.date-tab{padding:6px 14px;border:1.5px solid var(--bd);border-radius:20px;background:#fff;font-size:13px;cursor:pointer;white-space:nowrap;color:var(--inkm);transition:all .2s;flex-shrink:0;}
+.date-tab:hover{border-color:var(--gl);color:var(--gd);}
+.date-tab.on{border-color:var(--gm);background:var(--gp);color:var(--gd);font-weight:500;}
+.date-tab.has-sched{border-color:var(--gold);}
+.date-tab.on.has-sched{background:var(--goldl);}
+.no-dates{text-align:center;padding:2rem 1rem;color:var(--inkm);font-size:14px;}
+.response-item{background:#fff;border:1px solid var(--bd);border-radius:var(--r);padding:.75rem 1rem;margin-bottom:8px;}
+.response-top{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.avatar{width:28px;height:28px;border-radius:50%;background:var(--gp);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;color:var(--gd);flex-shrink:0;}
+.response-name{font-size:14px;font-weight:500;flex:1;}
+.slot-pills{display:flex;flex-wrap:wrap;gap:4px;}
+.slot-pill{font-size:11px;padding:2px 8px;border-radius:20px;background:var(--gp);color:var(--gm);border:1px solid rgba(45,90,39,.2);}
+.overlap-row{display:flex;align-items:center;gap:8px;margin-bottom:4px;}
+.overlap-time{font-size:12px;color:var(--inkm);width:48px;flex-shrink:0;}
+.overlap-wrap{flex:1;height:14px;background:#f0f0ea;border-radius:4px;overflow:hidden;}
+.overlap-bar{height:100%;border-radius:4px;transition:width .3s;}
+.overlap-count{font-size:11px;color:var(--inkm);width:20px;text-align:right;flex-shrink:0;}
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:center;justify-content:center;padding:1rem;}
+.modal-bg.open{display:flex;}
+.modal{background:var(--cream);border-radius:var(--r);border:1px solid var(--bd);padding:1.5rem;width:100%;max-width:400px;}
+.modal h3{font-family:'Playfair Display',serif;font-size:19px;color:var(--gd);margin-bottom:.4rem;}
+.modal p{font-size:13px;color:var(--inkm);margin-bottom:1rem;line-height:1.5;}
+.modal select{margin-bottom:1rem;}
+.modal-btns{display:flex;gap:8px;}
+.modal-btns button{flex:1;}
+.sched-card{background:#fff;border:1.5px solid var(--bd);border-radius:var(--r);overflow:hidden;margin-bottom:10px;}
+.sched-head{background:var(--gd);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;}
+.sched-head .time{font-family:'Playfair Display',serif;font-size:19px;color:#fff;}
+.sched-head .grp{font-size:11px;color:rgba(255,255,255,.55);}
+.score-pill{font-size:11px;font-weight:500;padding:3px 10px;border-radius:20px;color:#fff;}
+.sched-players{padding:10px 14px;}
+.sched-player{display:flex;align-items:center;gap:10px;padding:5px 0;border-bottom:.5px solid var(--bd);font-size:14px;}
+.sched-player:last-child{border:none;}
+.match-badge{margin-left:auto;font-size:10px;padding:2px 8px;border-radius:20px;}
+.mg{background:var(--gp);color:var(--gm);}
+.mo{background:var(--goldl);color:#7a5e1a;}
+.mp{background:#fff0f0;color:#c83c3c;}
+.undo-bar{background:#fff;border:1.5px solid var(--gold);border-radius:var(--r);padding:.75rem 1rem;display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:1rem;}
+.undo-bar span{font-size:13px;color:#7a5e1a;flex:1;}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--gd);color:#fff;padding:9px 20px;border-radius:20px;font-size:13px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:999;white-space:nowrap;}
+.toast.show{opacity:1;}
+.note{font-size:12px;color:var(--inkm);line-height:1.6;margin-top:6px;}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-icon">⛳</div>
+  <h1>Tee Times</h1>
+  <p>Pick your date · mark your hours · done</p>
+  <div class="tab-row">
+    <button class="tab-btn on" id="tabPlayer" onclick="showTab('player')">My Availability</button>
+    <button class="tab-btn" id="tabAdmin" onclick="showTab('admin')">Schedule</button>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- PLAYER VIEW -->
+  <div id="vPlayer">
+    <div id="formView">
+      <div class="sec">
+        <div class="lbl">Your name</div>
+        <input type="text" id="pName" placeholder="e.g. Alex Turner" autocomplete="name">
+      </div>
+      <div class="sec">
+        <div class="lbl">Date you're submitting for</div>
+        <input type="date" id="pDate">
+        <p class="note">Any date — weekday or weekend.</p>
+      </div>
+      <div class="sec">
+        <div class="lbl">Hours you can play</div>
+        <p class="note" style="margin-bottom:10px">Tap each hour you're free. Tap again to deselect.</p>
+        <div class="hour-grid" id="hourGrid"></div>
+      </div>
+      <div class="sec">
+        <div class="lbl">How flexible are you?</div>
+        <div class="flex-row">
+          <button class="flex-btn" data-f="1" onclick="setFlex(1,this)">Strict — my hours only</button>
+          <button class="flex-btn on" data-f="2" onclick="setFlex(2,this)">Flexible</button>
+          <button class="flex-btn" data-f="3" onclick="setFlex(3,this)">Any time works</button>
+        </div>
+      </div>
+      <div class="sec">
+        <div class="lbl">Note (optional)</div>
+        <input type="text" id="pNote" placeholder="e.g. need to leave by 2pm, back 9 only…">
+      </div>
+      <button class="btn-main" id="submitBtn" onclick="submitPrefs()">Submit my availability</button>
+      <p class="note" style="text-align:center;margin-top:8px">Re-submit any time to update your entry.</p>
+    </div>
+    <div id="successView" style="display:none">
+      <div class="success-card">
+        <div class="big">🎉</div>
+        <h3>You're in!</h3>
+        <p id="successMsg">Availability saved.</p>
+      </div>
+      <button class="btn-sec" onclick="editAgain()">Update my availability</button>
+    </div>
+  </div>
+
+  <!-- ADMIN VIEW -->
+  <div id="vAdmin" style="display:none">
+    <div class="admin-box">
+      <h4>⚙ Organiser tools</h4>
+      <p style="font-size:12px;color:#7a5e1a;margin-bottom:8px">Share this link with your group:</p>
+      <div class="share-box" id="shareLink"></div>
+      <div class="btn-row">
+        <button class="btn-sm" onclick="copyLink()">📋 Copy link</button>
+        <button class="btn-sm gold" onclick="copyScheduleText()">📤 Copy schedule</button>
+        <button class="btn-sm danger" onclick="clearDate()">🗑 Clear this date</button>
+      </div>
+    </div>
+
+    <div class="lbl">Dates with responses</div>
+    <div class="date-tabs" id="dateTabs"></div>
+
+    <div id="adminDateView" style="display:none">
+      <div class="stats-bar">
+        <div class="stat"><div class="stat-n" id="sPlayers">—</div><div class="stat-l">Responses</div></div>
+        <div class="stat"><div class="stat-n" id="sScore">—</div><div class="stat-l">Satisfaction</div></div>
+        <div class="stat"><div class="stat-n" id="sGroups">—</div><div class="stat-l">Groups</div></div>
+      </div>
+
+      <div class="lbl">Availability overlap</div>
+      <div id="overlapBars" style="margin-bottom:1.2rem"></div>
+
+      <div class="lbl" style="margin-bottom:8px">Responses</div>
+      <div id="responseList" style="margin-bottom:1rem"></div>
+
+      <div id="undoBar" class="undo-bar" style="display:none">
+        <span>Schedule generated — undo to let people update availability</span>
+        <button class="btn-sm danger" onclick="undoSchedule()">Undo generate</button>
+      </div>
+
+      <button class="btn-main" onclick="openGenerateModal()">Generate tee time schedule</button>
+      <div id="scheduleOut" style="margin-top:1.25rem"></div>
+    </div>
+
+    <div id="adminEmpty" class="no-dates">
+      <div style="font-size:32px;margin-bottom:8px">📬</div>
+      <p>No responses yet — share the link and players will appear here, grouped by date.</p>
+    </div>
+  </div>
+</div>
+
+<!-- GENERATE MODAL -->
+<div class="modal-bg" id="genModal">
+  <div class="modal">
+    <h3>Set tee time</h3>
+    <p id="genDesc">Pick the start time for Group 1. Subsequent groups are scheduled at +1hr intervals.</p>
+    <div class="lbl">Group 1 tee time</div>
+    <select id="genSelect"></select>
+    <div class="modal-btns">
+      <button class="btn-sec" style="margin:0" onclick="closeModal()">Cancel</button>
+      <button class="btn-main" style="margin:0;font-size:14px;padding:11px" onclick="confirmGenerate()">Generate ↗</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const HOURS=[];
+for(let h=6;h<=20;h++) HOURS.push(h);
+
+function fmtHour(h){return h===12?'12pm':h<12?h+'am':(h-12)+'pm';}
+function fmtDate(str){
+  if(!str)return'';
+  const d=new Date(str+'T12:00:00');
+  return d.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
+}
+function todayStr(){return new Date().toISOString().slice(0,10);}
+
+const STORE='golf_v5';
+let selectedHours=new Set();
+let flexLevel=2;
+let adminDate=null;
+let currentTab='player';
+
+function load(){try{return JSON.parse(localStorage.getItem(STORE)||'{}')}catch{return{}}}
+function save(d){localStorage.setItem(STORE,JSON.stringify(d));}
+
+// Hour grid
+function renderHourGrid(){
+  const g=document.getElementById('hourGrid');
+  g.innerHTML='';
+  HOURS.forEach(h=>{
+    const c=document.createElement('div');
+    c.className='hour-chip'+(selectedHours.has(h)?' on':'');
+    c.textContent=fmtHour(h);
+    c.onclick=()=>{selectedHours.has(h)?selectedHours.delete(h):selectedHours.add(h);renderHourGrid();};
+    g.appendChild(c);
+  });
+}
+
+function setFlex(n,el){
+  flexLevel=n;
+  document.querySelectorAll('.flex-btn').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');
+}
+
+// Submit
+function submitPrefs(){
+  const name=document.getElementById('pName').value.trim();
+  const dateVal=document.getElementById('pDate').value;
+  if(!name){toast('Enter your name');return;}
+  if(!dateVal){toast('Pick a date');return;}
+  if(!selectedHours.size&&flexLevel!==3){toast('Select at least one hour, or set flexibility to "Any time"');return;}
+  const btn=document.getElementById('submitBtn');
+  btn.disabled=true;btn.textContent='Saving…';
+  const data=load();
+  if(!data[dateVal])data[dateVal]={responses:{},schedule:null};
+  data[dateVal].responses[name]={
+    name,hours:[...selectedHours].sort((a,b)=>a-b),
+    flex:flexLevel,note:document.getElementById('pNote').value.trim(),
+    ts:new Date().toISOString()
+  };
+  save(data);
+  document.getElementById('successMsg').textContent=`Saved for ${fmtDate(dateVal)}. See you on the course!`;
+  document.getElementById('formView').style.display='none';
+  document.getElementById('successView').style.display='';
+  btn.disabled=false;btn.textContent='Submit my availability';
+}
+
+function editAgain(){
+  document.getElementById('formView').style.display='';
+  document.getElementById('successView').style.display='none';
+}
+
+// Tabs
+function showTab(t){
+  currentTab=t;
+  document.getElementById('vPlayer').style.display=t==='player'?'':'none';
+  document.getElementById('vAdmin').style.display=t==='admin'?'':'none';
+  document.getElementById('tabPlayer').classList.toggle('on',t==='player');
+  document.getElementById('tabAdmin').classList.toggle('on',t==='admin');
+  if(t==='admin')renderAdmin();
+}
+
+// Admin
+function renderAdmin(){
+  const data=load();
+  const dates=Object.keys(data).sort();
+  const tabsEl=document.getElementById('dateTabs');
+  const emptyEl=document.getElementById('adminEmpty');
+  const dateView=document.getElementById('adminDateView');
+  if(!dates.length){
+    tabsEl.innerHTML='';emptyEl.style.display='';dateView.style.display='none';return;
+  }
+  emptyEl.style.display='none';
+  if(!adminDate||!data[adminDate])adminDate=dates[0];
+  tabsEl.innerHTML=dates.map(d=>{
+    const hasSched=!!(data[d]&&data[d].schedule);
+    const on=d===adminDate;
+    return `<div class="date-tab${on?' on':''}${hasSched?' has-sched':''}" onclick="selectAdminDate('${d}')">${fmtDate(d)}${hasSched?' ✓':''}</div>`;
+  }).join('');
+  dateView.style.display='';
+  renderDateView(data,adminDate);
+}
+
+function selectAdminDate(d){adminDate=d;renderAdmin();}
+
+function renderDateView(data,d){
+  const entry=data[d]||{responses:{},schedule:null};
+  const players=Object.values(entry.responses||{});
+  document.getElementById('sPlayers').textContent=players.length;
+  document.getElementById('sGroups').textContent=players.length?Math.ceil(players.length/4):'—';
+  document.getElementById('sScore').textContent=entry.schedule?entry.schedule.avgScore+'/10':'—';
+
+  // overlap bars
+  const overlapEl=document.getElementById('overlapBars');
+  if(!players.length){
+    overlapEl.innerHTML='<div style="font-size:13px;color:var(--inkm)">No responses yet.</div>';
+  } else {
+    const counts={};
+    HOURS.forEach(h=>{counts[h]=players.filter(p=>p.flex===3||p.hours.includes(h)).length;});
+    const maxC=Math.max(...Object.values(counts),1);
+    overlapEl.innerHTML=HOURS.map(h=>{
+      const c=counts[h];
+      const pct=Math.round(c/maxC*100);
+      const col=c===players.length?'#4a8c3f':c>players.length*.5?'#c9a84c':'#d07070';
+      return `<div class="overlap-row">
+        <div class="overlap-time">${fmtHour(h)}</div>
+        <div class="overlap-wrap"><div class="overlap-bar" style="width:${pct}%;background:${col}"></div></div>
+        <div class="overlap-count">${c}</div>
+      </div>`;
+    }).join('');
+  }
+
+  // responses
+  const listEl=document.getElementById('responseList');
+  if(!players.length){
+    listEl.innerHTML='<div style="font-size:13px;color:var(--inkm);padding:.5rem 0">No responses for this date yet.</div>';
+  } else {
+    listEl.innerHTML=players.map(p=>`
+      <div class="response-item">
+        <div class="response-top">
+          <div class="avatar">${p.name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2)}</div>
+          <div class="response-name">${p.name}</div>
+          <span style="font-size:11px;color:var(--inkm)">${p.flex===1?'Strict':p.flex===2?'Flexible':'Any time'}</span>
+          <button class="btn-sm danger" style="padding:4px 8px;font-size:11px" onclick="removePlayer('${d}','${p.name.replace(/'/g,"\\'").replace(/"/g,'&quot;')}')">✕</button>
+        </div>
+        <div class="slot-pills">
+          ${p.flex===3?'<span class="slot-pill">Any time</span>':p.hours.length?p.hours.map(h=>`<span class="slot-pill">${fmtHour(h)}</span>`).join(''):'<span class="slot-pill">None selected</span>'}
+          ${p.note?`<span style="font-size:11px;color:var(--inkm);align-self:center;margin-left:4px">· ${p.note}</span>`:''}
+        </div>
+      </div>`).join('');
+  }
+
+  document.getElementById('undoBar').style.display=entry.schedule?'flex':'none';
+  const outEl=document.getElementById('scheduleOut');
+  entry.schedule?renderScheduleCards(entry.schedule,outEl):(outEl.innerHTML='');
+}
+
+function removePlayer(d,name){
+  const data=load();
+  if(data[d]&&data[d].responses)delete data[d].responses[name];
+  if(data[d])data[d].schedule=null;
+  save(data);renderAdmin();toast(`${name} removed`);
+}
+
+// Generate modal
+function openGenerateModal(){
+  const data=load();
+  const entry=data[adminDate]||{responses:{},schedule:null};
+  const players=Object.values(entry.responses||{});
+  if(!players.length){toast('No responses for this date');return;}
+
+  const counts={};
+  HOURS.forEach(h=>{counts[h]=players.filter(p=>p.flex===3||p.hours.includes(h)).length;});
+  const maxC=Math.max(...Object.values(counts),1);
+
+  const sel=document.getElementById('genSelect');
+  sel.innerHTML=HOURS.map(h=>{
+    const c=counts[h];
+    const tag=c===players.length?'✓ everyone free':c===0?'nobody free':`${c}/${players.length} free`;
+    return `<option value="${h}"${c===maxC?' selected':''}>${fmtHour(h)} — ${tag}</option>`;
+  }).join('');
+
+  const bestH=HOURS.find(h=>counts[h]===maxC);
+  document.getElementById('genDesc').textContent=
+    `${fmtDate(adminDate)} · ${players.length} player${players.length!==1?'s':''}. Best overlap: ${fmtHour(bestH)}. Groups tee off at hourly intervals from your chosen start time.`;
+
+  document.getElementById('genModal').classList.add('open');
+}
+
+function closeModal(){document.getElementById('genModal').classList.remove('open');}
+
+function confirmGenerate(){
+  const startHour=parseInt(document.getElementById('genSelect').value);
+  closeModal();runScheduler(startHour);
+}
+
+// Scheduler
+function scorePlayer(player,hour){
+  if(player.flex===3)return 8;
+  if(player.hours.includes(hour))return 10;
+  if(player.flex===2)return 3;
+  return 0;
+}
+
+function runScheduler(startHour){
+  const data=load();
+  const entry=data[adminDate]||{responses:{},schedule:null};
+  const players=Object.values(entry.responses||{});
+  if(!players.length){toast('No players');return;}
+  const GROUP_SIZE=4;
+  const numGroups=Math.ceil(players.length/GROUP_SIZE);
+  const slots=Array.from({length:numGroups},(_,i)=>({hour:startHour+i,members:[]}));
+  const sorted=[...players].sort((a,b)=>a.flex-b.flex||a.hours.length-b.hours.length);
+  for(const player of sorted){
+    let best=null,bestScore=-Infinity;
+    for(const slot of slots){
+      if(slot.members.length>=GROUP_SIZE)continue;
+      const s=scorePlayer(player,slot.hour);
+      if(s>bestScore){bestScore=s;best=slot;}
+    }
+    if(best)best.members.push({...player,score:bestScore});
+  }
+  const allScores=slots.flatMap(s=>s.members.map(p=>p.score));
+  const avg=allScores.length?Math.round(allScores.reduce((a,b)=>a+b,0)/allScores.length):0;
+  const schedule={slots,startHour,avgScore:avg,generatedAt:new Date().toISOString()};
+  if(!data[adminDate])data[adminDate]={responses:{},schedule:null};
+  data[adminDate].schedule=schedule;
+  save(data);renderAdmin();toast('Schedule generated!');
+}
+
+function undoSchedule(){
+  if(!confirm('Clear the generated schedule? Responses are kept — players can still update.'))return;
+  const data=load();
+  if(data[adminDate])data[adminDate].schedule=null;
+  save(data);renderAdmin();toast('Schedule cleared');
+}
+
+function renderScheduleCards(schedule,outEl){
+  outEl.innerHTML='<div class="lbl" style="margin-bottom:10px">Generated schedule</div>'+
+    schedule.slots.filter(s=>s.members.length).map((s,i)=>{
+      const avg=s.members.length?Math.round(s.members.reduce((a,p)=>a+p.score,0)/s.members.length):0;
+      const bg=avg>=8?'#4a8c3f':avg>=5?'#c9a84c':'#c83c3c';
+      return `<div class="sched-card">
+        <div class="sched-head">
+          <div><div class="time">${fmtHour(s.hour)}</div><div class="grp">Group ${i+1} · ${s.members.length} players</div></div>
+          <div class="score-pill" style="background:${bg}">${avg}/10</div>
+        </div>
+        <div class="sched-players">
+          ${s.members.map(p=>{
+            const cls=p.score>=8?'mg':p.score>=5?'mo':'mp';
+            const lbl=p.score>=8?'Available':p.score>=3?'Flexible':'Constrained';
+            return `<div class="sched-player">
+              <div class="avatar">${p.name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2)}</div>
+              <div><div>${p.name}</div>${p.note?`<div style="font-size:11px;color:var(--inkm)">${p.note}</div>`:''}</div>
+              <span class="match-badge ${cls}">${lbl}</span>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>`;
+    }).join('');
+}
+
+// Share
+function copyLink(){navigator.clipboard.writeText(window.location.href).then(()=>toast('Link copied!'));}
+
+function copyScheduleText(){
+  const data=load();
+  const entry=data[adminDate];
+  if(!entry||!entry.schedule){toast('Generate a schedule first');return;}
+  const s=entry.schedule;
+  let txt=`⛳ TEE TIMES — ${fmtDate(adminDate)}\n${'━'.repeat(32)}\n\n`;
+  s.slots.filter(sl=>sl.members.length).forEach((sl,i)=>{
+    txt+=`${fmtHour(sl.hour)}  (Group ${i+1})\n`;
+    sl.members.forEach(p=>{txt+=`  • ${p.name}${p.note?' — '+p.note:''}\n`;});
+    txt+='\n';
+  });
+  txt+=`${Object.values(entry.responses).length} players · auto-scheduled`;
+  navigator.clipboard.writeText(txt).then(()=>toast('Schedule copied!'));
+}
+
+function clearDate(){
+  if(!adminDate){toast('Select a date first');return;}
+  if(!confirm(`Clear all data for ${fmtDate(adminDate)}? This cannot be undone.`))return;
+  const data=load();
+  delete data[adminDate];
+  adminDate=null;save(data);renderAdmin();toast('Date cleared');
+}
+
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2400);
+}
+
+function init(){
+  document.getElementById('pDate').value=todayStr();
+  renderHourGrid();
+  document.getElementById('shareLink').textContent=window.location.href;
+}
+init();
+</script>
+</body>
+</html>
